@@ -297,6 +297,7 @@
     transition: transform 0.25s, box-shadow 0.25s;
     display: flex;
     flex-direction: column;
+    cursor: pointer;
   }
 
   .tour-card:hover {
@@ -541,6 +542,150 @@
 
   footer a { color: var(--gold); text-decoration: none; }
 
+  /* ─── TOUR DETAIL MODAL ─── */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: rgba(8,45,62,0.78);
+    backdrop-filter: blur(4px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 2.5rem 1.25rem;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+  }
+
+  .modal-overlay.active {
+    display: flex;
+    opacity: 1;
+  }
+
+  .modal-content {
+    background: var(--white);
+    border-radius: var(--radius);
+    width: 100%;
+    max-width: 640px;
+    max-height: 88vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 24px 64px rgba(8,45,62,0.4);
+    transform: translateY(18px) scale(0.97);
+    transition: transform 0.28s ease;
+  }
+
+  .modal-overlay.active .modal-content {
+    transform: translateY(0) scale(1);
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 10;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(8,45,62,0.55);
+    color: white;
+    font-size: 1.6rem;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+  }
+
+  .modal-close:hover { background: var(--ocean-deep); }
+
+  .modal-img-wrap {
+    position: relative;
+    height: 280px;
+    overflow: hidden;
+    border-radius: var(--radius) var(--radius) 0 0;
+  }
+
+  .modal-img-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .modal-body {
+    padding: 1.75rem 2rem 2rem;
+  }
+
+  .modal-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.7rem;
+    font-weight: 700;
+    color: var(--ocean-deep);
+    margin: 0.85rem 0 0.85rem;
+    line-height: 1.25;
+  }
+
+  .modal-desc {
+    font-size: 0.95rem;
+    color: var(--text-mid);
+    line-height: 1.65;
+    margin-bottom: 1.75rem;
+  }
+
+  .modal-section {
+    margin-bottom: 1.75rem;
+  }
+
+  .modal-section h4 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--gold-dark);
+    margin-bottom: 0.75rem;
+  }
+
+  .modal-section ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+  }
+
+  .modal-section ul li {
+    font-size: 0.9rem;
+    color: var(--text-mid);
+    padding-left: 1.5rem;
+    position: relative;
+    line-height: 1.5;
+  }
+
+  .modal-section ul li::before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: var(--ocean);
+    font-weight: 700;
+  }
+
+  .modal-section p {
+    font-size: 0.9rem;
+    color: var(--text-mid);
+    line-height: 1.65;
+  }
+
+  .modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    border-top: 1px solid #F0E8D0;
+    padding-top: 1.5rem;
+  }
+
   /* ─── RESPONSIVE ─── */
   @media (max-width: 700px) {
     nav { padding: 1rem 1.25rem; }
@@ -552,6 +697,11 @@
     .wa-float span { display: none; }
     .wa-float { padding: 0.9rem; border-radius: 50%; }
     footer { flex-direction: column; text-align: center; }
+    .modal-overlay { padding: 0; align-items: flex-end; }
+    .modal-content { max-width: 100%; max-height: 92vh; border-radius: var(--radius) var(--radius) 0 0; }
+    .modal-img-wrap { height: 200px; }
+    .modal-body { padding: 1.5rem 1.25rem 1.75rem; }
+    .modal-title { font-size: 1.4rem; }
   }
 </style>
 </head>
@@ -621,7 +771,7 @@
   <div class="trust-item"><span class="icon">⭐</span> 4.8 Rating on Google</div>
   <div class="trust-divider"></div>
   <!-- ✏️ Update client count -->
-  <div class="trust-item"><span class="icon">🏆</span> 35+ Combined Travel Experience</div>
+  <div class="trust-item"><span class="icon">🏆</span> 35+ Years Combined Travel Experience</div>
   <div class="trust-divider"></div>
   <div class="trust-item"><span class="icon">🚐</span> Hotel Pickups & Transfers </div>
   <div class="trust-divider"></div>
@@ -663,7 +813,11 @@
   <div class="cards-grid" id="cardsGrid">
 
     <!-- ── CARD 1 ── ✏️ Edit all content below -->
-    <div class="tour-card" data-category="water">
+    <div class="tour-card" data-category="water"
+         data-extra="This is one of our most-booked excursions — a full day on the postcard-perfect sandbars and palm-lined shores of Saona Island, with a stop to wade among starfish along the way."
+         data-highlights="Swim in the shallow turquoise waters of the natural pool | Spot starfish along a quiet sandbar | Relax on the white-sand beaches of Saona Island | Live music and dancing on the boat ride back"
+         data-included="Round-trip hotel pickup and drop-off | Catamaran or speedboat transportation | Open bar with local rum and soft drinks | Buffet lunch on the island"
+         data-good-to-know="Bring sunscreen, a swimsuit, and a towel. Water shoes are recommended for the sandbar stop, and most of the day is spent outdoors in direct sun.">
       <div class="card-img-wrap">
         <!-- ✏️ Replace with your tour image URL -->
         <img src="saona-island-guide_isla-saona.webp" alt="Saona Island Excursion" loading="lazy">
@@ -702,7 +856,11 @@
     </div>
 
     <!-- ── CARD 2 ── ✏️ Edit all content below -->
-    <div class="tour-card" data-category="offroad">
+    <div class="tour-card" data-category="offroad"
+         data-extra="Get your adrenaline going on a guided buggy convoy through dirt trails, sugar cane fields, and small local villages before cooling off in a freshwater cenote."
+         data-highlights="Drive your own dune buggy through the Dominican countryside | Stop at a local farm to sample fresh fruit and coffee | Swim in a natural freshwater cenote | Pass through small villages for an authentic local glimpse"
+         data-included="Hotel pickup and drop-off | Buggy rental with safety gear | Bilingual guide leading the convoy | Bottled water and a fruit stop"
+         data-good-to-know="A valid driver's license is required to drive; passengers without one are welcome to ride along. Wear closed-toe shoes and clothes you don't mind getting dusty.">
       <div class="card-img-wrap">
         <img src="126926.jpg" alt="Dune Buggy Adventure" loading="lazy">
         <span class="card-badge half">Half Day</span>
@@ -734,7 +892,11 @@
     </div>
 
     <!-- ── CARD 3 ── ✏️ Edit all content below -->
-    <div class="tour-card" data-category="water">
+    <div class="tour-card" data-category="water"
+         data-extra="Experience one of the wildest nights out in the Caribbean at the legendary Coco Bongo nightclub, known for its acrobatic shows, live bands, and open bar."
+         data-highlights="Live acrobatic and circus-style performances | Tribute bands and surprise look-alike acts | Open bar all night long | Reserved seating for the show"
+         data-included="Round-trip transportation from your hotel | Entrance to Coco Bongo | Open bar (national drinks) | Reserved seating for the show"
+         data-good-to-know="This excursion runs late into the night, typically returning to your hotel after 2am. Smart-casual dress is recommended and the venue gets loud and crowded.">
       <div class="card-img-wrap">
         <img src="Cocobongo-U.jpg" alt="Cocobongo Nightlife Tour" loading="lazy">
         <span class="card-badge half">Half Day</span>
@@ -766,7 +928,11 @@
     </div>
 
     <!-- ── CARD 4 ── ✏️ Edit all content below -->
-    <div class="tour-card" data-category="transfer">
+    <div class="tour-card" data-category="transfer"
+         data-extra="All aboard the Hispaniola! This family-friendly pirate adventure blends theatrical pirate training with swimming stops, games, and a treasure hunt for the kids."
+         data-highlights="Pirate training and face-painting for kids | Treasure hunt game with prizes | Stop to swim and snorkel from the ship | Live pirate-themed show and music on deck"
+         data-included="Round-trip hotel transportation | Pirate costume props and face painting | Snacks and drinks on board | Treasure hunt activity"
+         data-good-to-know="This tour is geared toward families with children. Bring swimwear and a towel for the swim stop — the ship departs and returns at scheduled times.">
       <div class="card-img-wrap">
         <img src="Barco-pirata-y-snorkel-en-Punta-Cana.jpg" alt="Private Airport Transfer" loading="lazy">
         <span class="card-badge transfer">Transfer</span>
@@ -798,7 +964,11 @@
     </div>
 
     <!-- ── CARD 5 ── ✏️ Edit all content below -->
-    <div class="tour-card" data-category="nightlife">
+    <div class="tour-card" data-category="nightlife"
+         data-extra="Treat yourself to a relaxing afternoon of marine-inspired wellness, finished off with a dip in the ocean to wash it all away."
+         data-highlights="Soothing fish pedicure treatment | Full-body professional massage | Guided bio-pilates session by the water | Quiet, adults-only setting"
+         data-included="Round-trip hotel transportation | Fish pedicure session | 60-minute massage | Bio-pilates class"
+         data-good-to-know="This experience is intended for adults only and runs on a limited daily schedule, so advance booking is recommended.">
       <div class="card-img-wrap">
         <img src="https://images.unsplash.com/photo-1504196606672-aef5c9cefc92?w=600&q=80" alt="Ocean Spa Experience" loading="lazy">
         <span class="card-badge half">Half Day</span>
@@ -830,7 +1000,11 @@
     </div>
 
     <!-- ── CARD 6 ── ✏️ Edit all content below -->
-    <div class="tour-card" data-category="nature">
+    <div class="tour-card" data-category="nature"
+         data-extra="A two-stop adventure that pairs the artists' village of Altos de Chávon with a snorkeling stop in the crystal-clear waters surrounding Catalina Island."
+         data-highlights="Explore the cobblestone streets of Altos de Chávon | Snorkel one of the Caribbean's largest coral reefs | Spot colorful reef fish and starfish | Scenic boat ride along the southeastern coast"
+         data-included="Round-trip hotel transportation | Snorkeling gear and life vest | Guided tour of Altos de Chávon | Lunch and soft drinks"
+         data-good-to-know="Basic swimming ability is recommended for the snorkeling stop. Bring reef-safe sunscreen, a swimsuit, and a change of clothes.">
       <div class="card-img-wrap">
         <img src="botes-playa-isla-catalina.jpg" alt="Catalina Island Snorkeling" loading="lazy">
         <span class="card-badge full">Full Day</span>
@@ -862,7 +1036,11 @@
     </div>
 
        <!-- ── CARD 7 ── ✏️ Edit all content below -->
-    <div class="tour-card" data-category="nature">
+    <div class="tour-card" data-category="nature"
+         data-extra="Head out into the deep blue with an experienced local crew chasing marlin, tuna, mahi-mahi, and wahoo in one of the Caribbean's top sportfishing grounds."
+         data-highlights="Deep-sea fishing for marlin, tuna, and mahi-mahi | Professional captain and mate on board | All rods, reels, and bait provided | Photos with your catch back at the dock"
+         data-included="Round-trip hotel transportation | Fishing equipment and bait | Bottled water and light snacks | Captain and crew"
+         data-good-to-know="Spots are limited per boat, so booking a few days ahead is recommended. Anyone prone to seasickness may want to take preventive medication before departure.">
       <div class="card-img-wrap">
         <img src="blue-marlin-charters-fishing.webp" alt="Catalina Island Snorkeling" loading="lazy">
         <span class="card-badge full">Full Day</span>
@@ -894,7 +1072,11 @@
     </div>
 
           <!-- ── CARD 8 ── ✏️ Edit all content below -->
-    <div class="tour-card" data-category="nature">
+    <div class="tour-card" data-category="nature"
+         data-extra="Trade the beach for history on a full-day journey to Santo Domingo, the oldest European city in the Americas, packed with colonial landmarks and local culture."
+         data-highlights="Walk Calle Las Damas, the oldest street in the Americas | Visit the Catedral Primada de América | Photo stop at the Presidential Palace | Free time to browse local artisan shops"
+         data-included="Round-trip transportation in an air-conditioned vehicle | Bilingual guide | Lunch at a local restaurant | All entrance fees to listed sites"
+         data-good-to-know="This is a long travel day, with several hours of driving each way from Punta Cana, so comfortable shoes are recommended. Bring a valid photo ID.">
       <div class="card-img-wrap">
         <img src="download.jpg" alt="Catalina Island Snorkeling" loading="lazy">
         <span class="card-badge full">Full Day</span>
@@ -926,7 +1108,11 @@
     </div>
 
           <!-- ── CARD 9 ── ✏️ Edit all content below -->
-    <div class="tour-card" data-category="nature">
+    <div class="tour-card" data-category="nature"
+         data-extra="Spend the day exploring Scape Park's network of underground caverns, cenotes, and adrenaline activities tucked into the jungle just outside Punta Cana."
+         data-highlights="Zipline above the jungle canopy | Cliff-jump into a crystal-clear cenote | Explore ancient underground caves and caverns | Swim in natural freshwater pools"
+         data-included="Round-trip hotel transportation | Full park admission | Safety gear for ziplining and cave activities | Locker and changing facilities"
+         data-good-to-know="Closed-toe water shoes are required for the cave and cenote sections. This excursion involves moderate physical activity, including stairs and uneven terrain.">
       <div class="card-img-wrap">
         <img src="DSC09034_saltos.jpg" alt="Catalina Island Snorkeling" loading="lazy">
         <span class="card-badge full">Full Day</span>
@@ -958,7 +1144,11 @@
     </div>
 
           <!-- ── CARD 10 ── ✏️ Edit all content below -->
-    <div class="tour-card" data-category="nature">
+    <div class="tour-card" data-category="nature"
+         data-extra="Skim across the coastline by speedboat before dropping anchor over a shallow reef for an afternoon of snorkeling and beach time."
+         data-highlights="High-speed boat ride along the coast | Snorkel over a shallow coral reef | Stop at a secluded beach for relaxation | Spot tropical fish along the way"
+         data-included="Round-trip hotel transportation | Snorkeling gear and life vest | Bottled water and fruit | Beach stop with free time"
+         data-good-to-know="Swimming ability is helpful but not required, since life vests are provided. Bring sunscreen and a swimsuit.">
       <div class="card-img-wrap">
         <img src="Speedboat-Snorkeling-1024x1024.webp" alt="Speedboat & Snorkel Tour" loading="lazy">
         <span class="card-badge full">Full Day</span>
@@ -990,7 +1180,11 @@
     </div>
 
              <!-- ── CARD 11 ── ✏️ Edit all content below -->
-    <div class="tour-card" data-category="nature">
+    <div class="tour-card" data-category="nature"
+         data-extra="Set sail along the Bávaro coastline aboard a classic sailboat, with a stop to wade through the famous natural swimming pool and snorkel its coral gardens."
+         data-highlights="Sail the turquoise waters off Bávaro Beach | Wade through the natural swimming pool | Snorkel a shallow coral reef | Onboard music and refreshments"
+         data-included="Round-trip hotel transportation | Sailboat excursion | Snorkeling gear | Soft drinks and light snacks"
+         data-good-to-know="This excursion is weather-dependent and may be rescheduled in case of rough seas. Comfortable swimwear is recommended throughout.">
       <div class="card-img-wrap">
         <img src="Speedboat-Snorkeling-1024x1024.webp" alt="Speedboat & Snorkel Tour" loading="lazy">
         <span class="card-badge full">Full Day</span>
@@ -1022,7 +1216,11 @@
     </div>
 
              <!-- ── CARD 12 ── ✏️ Edit all content below -->
-    <div class="tour-card" data-category="nature">
+    <div class="tour-card" data-category="nature"
+         data-extra="Step off the resort strip and into everyday Dominican life with a cultural day trip to Higuey, home to the country's most important basilica and a working countryside farm."
+         data-highlights="Visit the Basílica de Nuestra Señora de la Altagracia | Browse handcrafted gifts at the local artisan market | Tour a traditional countryside home | Sample fresh-brewed coffee and cocoa"
+         data-included="Round-trip hotel transportation | Bilingual local guide | Coffee and cocoa tasting | Market time for souvenir shopping"
+         data-good-to-know="This tour focuses on culture and history rather than beach time, so dress modestly for the basilica visit (shoulders and knees covered).">
       <div class="card-img-wrap">
         <img src="https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?w=600&q=80" alt="Speedboat & Snorkel Tour" loading="lazy">
         <span class="card-badge full">Full Day</span>
@@ -1079,7 +1277,11 @@
   <div class="cards-grid" id="cardsGrid">
 
     <!-- ── CARD 1 ── ✏️ Edit all content below -->
-    <div class="tour-card" data-category="water">
+    <div class="tour-card" data-category="water"
+         data-extra="Enjoy the same unforgettable Saona Island experience as our group tour, but on a private charter with your own boat, crew, and schedule — just for your group."
+         data-highlights="Private boat and crew reserved exclusively for your group | Flexible departure time built around your schedule | Stop at the natural pool to swim with starfish | Private beach setup on Saona Island"
+         data-included="Private round-trip transportation | Private catamaran or speedboat charter | Open bar with local drinks | Private lunch setup on the island"
+         data-good-to-know="Because this is a private charter, pricing scales with group size — reach out on WhatsApp for an exact quote.">
       <div class="card-img-wrap">
         <!-- ✏️ Replace with your tour image URL -->
         <img src="saona-island-guide_isla-saona.webp" alt="Private Saona Island Excursion" loading="lazy">
@@ -1118,7 +1320,11 @@
     </div>
 
     <!-- ── CARD 2 ── ✏️ Edit all content below -->
- <div class="tour-card" data-category="nature">
+ <div class="tour-card" data-category="nature"
+         data-extra="The same colonial Santo Domingo itinerary as our classic day trip, arranged as a private tour with your own vehicle, driver, and guide."
+         data-highlights="Private vehicle and dedicated guide for your group only | Visit the Catedral Primada de América and Calle Las Damas | Photo stop at the Presidential Palace | Itinerary paced to suit your group"
+         data-included="Private round-trip transportation | Private bilingual guide | Lunch at a local restaurant | All entrance fees to listed sites"
+         data-good-to-know="Departure time can be customized to your group's schedule — message us on WhatsApp to arrange a time that works for you.">
       <div class="card-img-wrap">
         <img src="download.jpg" alt="Catalina Island Snorkeling" loading="lazy">
         <span class="card-badge full">Full Day</span>
@@ -1150,7 +1356,11 @@
     </div>
 
     <!-- ── CARD 3 ── ✏️ Edit all content below -->
-    <div class="tour-card" data-category="water">
+    <div class="tour-card" data-category="water"
+         data-extra="Skip the shared shuttle and head to Coco Bongo's legendary shows with your own private transportation and reserved seating for your group."
+         data-highlights="Private transportation to and from the club | Reserved seating for your group | Live acrobatic and circus-style performances | Open bar all night long"
+         data-included="Private round-trip transportation | Entrance to Coco Bongo | Open bar (national drinks) | Reserved group seating"
+         data-good-to-know="This excursion runs late, typically returning after 2am. Let us know your group size in advance so we can reserve the right table.">
       <div class="card-img-wrap">
         <img src="JTDRExcursions/JTDRExcursions.ca/blob/main/Cocobongo-U.jpg" alt="Cocobongo Nightlife Tour" loading="lazy">
         <span class="card-badge half">Half Day</span>
@@ -1182,7 +1392,11 @@
     </div>
 
     <!-- ── CARD 4 ── ✏️ Edit all content below -->
-      <div class="tour-card" data-category="nature">
+      <div class="tour-card" data-category="nature"
+         data-extra="The same cultural deep-dive into Higuey, arranged as a private tour so your group can move at its own pace with a dedicated guide."
+         data-highlights="Private guide and vehicle for your group only | Visit the Basílica de Nuestra Señora de la Altagracia | Browse handcrafted gifts at the artisan market | Private coffee and cocoa tasting at a countryside home"
+         data-included="Private round-trip transportation | Dedicated bilingual guide | Coffee and cocoa tasting | Flexible itinerary timing"
+         data-good-to-know="Dress modestly for the basilica visit (shoulders and knees covered). Contact us on WhatsApp to set a custom pickup time.">
       <div class="card-img-wrap">
         <img src="https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?w=600&q=80" alt="Speedboat & Snorkel Tour" loading="lazy">
         <span class="card-badge full">Full Day</span>
@@ -1250,6 +1464,49 @@
 
 
 <!-- ════════════════════════════════
+     TOUR DETAIL MODAL
+     Populated dynamically via JS when a card is clicked.
+     ✏️ Lorem ipsum placeholder text below is replaced automatically
+        per-tour, but you can edit the constants in the script to
+        change the generic copy shown in every modal.
+     ════════════════════════════════ -->
+<div class="modal-overlay" id="tourModal">
+  <div class="modal-content">
+    <button class="modal-close" onclick="closeModal()" aria-label="Close">&times;</button>
+    <div class="modal-img-wrap">
+      <img id="modalImg" src="" alt="">
+      <span class="card-badge" id="modalBadge"></span>
+    </div>
+    <div class="modal-body">
+      <h2 class="modal-title" id="modalTitle"></h2>
+      <div class="card-meta" id="modalMeta"></div>
+      <p class="modal-desc" id="modalDesc"></p>
+
+      <div class="modal-section">
+        <h4>Tour Highlights</h4>
+        <ul id="modalHighlights"></ul>
+      </div>
+
+      <div class="modal-section">
+        <h4>What's Included</h4>
+        <ul id="modalIncluded"></ul>
+      </div>
+
+      <div class="modal-section">
+        <h4>Good to Know</h4>
+        <p id="modalGoodToKnow"></p>
+      </div>
+
+      <div class="modal-footer">
+        <div class="card-price" id="modalPrice"></div>
+        <div id="modalBookWrap"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════
      FLOATING WHATSAPP BUTTON
      ✏️ Replace 1XXXXXXXXXX with your WhatsApp number
      ════════════════════════════════ -->
@@ -1274,6 +1531,110 @@
       card.style.display = show ? 'flex' : 'none';
     });
   }
+
+  // ── TOUR DETAIL MODAL ──
+  // ✏️ Per-tour modal copy now lives on each .tour-card element itself,
+  //    as data-* attributes, right next to the rest of that tour's info.
+  //    When you duplicate a card to add a new tour, just edit these too:
+  //
+  //      data-extra="One or two extra sentences appended after the short
+  //                  card description, shown at the top of the modal."
+  //      data-highlights="Item one | Item two | Item three | Item four"
+  //      data-included="Item one | Item two | Item three | Item four"
+  //      data-good-to-know="A short paragraph of practical info (what to
+  //                         bring, age limits, timing, etc.)."
+  //
+  //    Separate list items with " | " (a space, a pipe, a space).
+  //
+  //    The constants below are a FALLBACK ONLY — they're used if a card
+  //    is missing one of the data-* attributes above (e.g. you added a
+  //    new card and forgot to fill one in), so the modal never breaks.
+  const LOREM_EXTRA = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.";
+
+  const LOREM_HIGHLIGHTS = [
+    "Lorem ipsum dolor sit amet consectetur adipiscing",
+    "Elit sed do eiusmod tempor incididunt ut labore",
+    "Dolore magna aliqua enim ad minim veniam quis",
+    "Nostrud exercitation ullamco laboris nisi ut aliquip"
+  ];
+
+  const LOREM_INCLUDED = [
+    "Lorem ipsum dolor sit amet consectetur",
+    "Adipiscing elit sed do eiusmod tempor",
+    "Incididunt ut labore et dolore magna",
+    "Aliqua enim ad minim veniam quis nostrud"
+  ];
+
+  const LOREM_GOOD_TO_KNOW = "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
+
+  // Splits a "Item one | Item two | Item three" string into a clean array.
+  // Falls back to the lorem list if the attribute is missing or empty.
+  function splitList(value, fallback) {
+    if (!value) return fallback;
+    return value.split('|').map(s => s.trim()).filter(Boolean);
+  }
+
+  function openModal(card) {
+    const img = card.querySelector('.card-img-wrap img');
+    const badge = card.querySelector('.card-badge');
+    const title = card.querySelector('.card-title').textContent;
+    const meta = card.querySelector('.card-meta');
+    const desc = card.querySelector('.card-desc').textContent;
+    const price = card.querySelector('.card-price');
+    const bookBtn = card.querySelector('.btn-book');
+
+    // Per-tour modal copy, read straight off the card's data-* attributes.
+    const extra = card.dataset.extra || LOREM_EXTRA;
+    const highlights = splitList(card.dataset.highlights, LOREM_HIGHLIGHTS);
+    const included = splitList(card.dataset.included, LOREM_INCLUDED);
+    const goodToKnow = card.dataset.goodToKnow || LOREM_GOOD_TO_KNOW;
+
+    const modalImg = document.getElementById('modalImg');
+    modalImg.src = img.src;
+    modalImg.alt = img.alt;
+
+    const modalBadge = document.getElementById('modalBadge');
+    modalBadge.className = badge.className;
+    modalBadge.textContent = badge.textContent;
+
+    document.getElementById('modalTitle').textContent = title;
+    document.getElementById('modalMeta').innerHTML = meta.innerHTML;
+    document.getElementById('modalDesc').textContent = desc + ' ' + extra;
+    document.getElementById('modalHighlights').innerHTML = highlights.map(i => `<li>${i}</li>`).join('');
+    document.getElementById('modalIncluded').innerHTML = included.map(i => `<li>${i}</li>`).join('');
+    document.getElementById('modalGoodToKnow').textContent = goodToKnow;
+    document.getElementById('modalPrice').innerHTML = price.innerHTML;
+    document.getElementById('modalBookWrap').innerHTML = bookBtn ? bookBtn.outerHTML : '';
+
+    const modal = document.getElementById('tourModal');
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal() {
+    document.getElementById('tourModal').classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  // Close modal when clicking the dark overlay (outside the card)
+  document.getElementById('tourModal').addEventListener('click', (e) => {
+    if (e.target.id === 'tourModal') closeModal();
+  });
+
+  // Close modal with Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeModal();
+  });
+
+  // Wire up every tour card to open the modal on click,
+  // while letting the "Book Now" WhatsApp button work normally
+  document.querySelectorAll('.tour-card').forEach((card) => {
+    card.addEventListener('click', () => openModal(card));
+    const bookBtn = card.querySelector('.btn-book');
+    if (bookBtn) {
+      bookBtn.addEventListener('click', (e) => e.stopPropagation());
+    }
+  });
 </script>
 
 </body>
